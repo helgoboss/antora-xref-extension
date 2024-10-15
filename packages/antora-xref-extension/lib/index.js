@@ -146,8 +146,11 @@ function register ({ config }) {
       if (config?.logUnnecessaryLinkTextWarnings && linkText === target.reftext) {
         log(block, 'warn', `unnecessary xref link text: ${resourceId}#${fragment}[${linkText}]`)
       }
-      linkText = linkText !== '' ? linkText : target.reftext
-      if (linkText === '') log(block, 'warn', `target has no reftext: ${resourceId}#${fragment}`)
+      // For inline elements, the text is the reftext and the reftext attribute is not set 
+      // (see https://www.rubydoc.info/gems/asciidoctor/Asciidoctor/Inline)
+      //  (target = $$id,parent,document,context,node_name,attributes,passthroughs,text,id,type,target)
+      linkText = linkText || target.reftext || target.node.text
+      if (!linkText) log(block, 'warn', `target has no reftext: ${resourceId}#${fragment}`)
       return `xref:${resourceId}#${fragment}[${linkText}]`
     })
   }
