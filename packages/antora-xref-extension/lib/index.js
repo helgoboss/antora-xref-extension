@@ -101,7 +101,6 @@ function register ({ config }) {
       }
       return
     }
-
     try {
       const context = node.getContext()
       if (context === 'paragraph' || context === 'admonition') {
@@ -114,12 +113,14 @@ function register ({ config }) {
         rows.getHead().forEach((row) => row.forEach((cell) => processNode(src, cell, lookup)))
         rows.getBody().forEach((row) => row.forEach((cell) => processNode(src, cell, lookup)))
         rows.getFoot().forEach((row) => row.forEach((cell) => processNode(src, cell, lookup)))
-      } else if (context === 'table_cell' || context === 'list_item') {
+      } else if ((context === 'table_cell' || context === 'list_item') && typeof node.text === "string") {
         node.text = processLine(src, node, node.text, lookup)
       }
-      node.getBlocks().forEach((child) => processNode(src, child, lookup))
+      node.getBlocks().forEach((child) => {
+        return processNode(src, child, lookup)
+      })
     } catch (t) {
-      log(node, 'warn', 'Parse error when validating xrefs.')
+      log(node, 'warn', `Parse error when validating xrefs: ${t.stack}`)
     }
   }
 
